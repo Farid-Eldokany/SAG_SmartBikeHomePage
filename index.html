@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<link href="CSS/flip.min.css" rel="stylesheet">
+<script src="JS/flip.min.js"></script>
+<link rel="stylesheet" href="CSS/odometer-theme-car.css" />
+<script type="text/javascript" src="JS/odometer.js"></script>
+<script src="JS/jquery-3.3.1.slim.min.js" ></script>
+<script src="JS/smtp.js"></script>
+<link rel="stylesheet" href="CSS/speedometer.css">
+<script src="JS/core.js"></script>
+<script src="JS/charts.js"></script>
+<script src="JS/animated.js"></script>
+<script src="JS/dataTables.min.js"></script>
+<script src="JS/bootstrap4.min.js"></script>  
+<link rel="stylesheet" href="CSS/bootstrap.min.css" >
+<link rel="stylesheet" href="CSS/bootstrap-theme.min.css" >
+<script src="JS/bootstrap.min.js"></script>
+<script type="text/javascript" src="JS/loader.js"></script>
+<link rel="stylesheet" href="CSS/main_file.css">
+<body>
+<div id="waiting">
+  
+    <div class="floating">
+        <label class="console-container">Waiting For A Contestant To Login . . .</label>
+    </div>
+    
+</div>
+<div class="main1"id="main1">
+  <button id="newsession"  onclick="toggle(this,'history','leaderboard')">New Session</button>
+  <button id="history"  onclick="toggle(this,'newsession','leaderboard')">History</button>
+  <button id="leaderboard" onclick="toggle(this,'history','newsession')">Leaderboard</button>
+  <button class="logout" onclick="logout()">Logout</button>
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Session 1 Summary</h4>
+        </div>
+        <div class="modal-body" style="height: 850px;">
+            <label id="cn"class="contestantname"></label>
+            <div class="bikepose" >
+                <img id="bpi"class= "bikeposeimage"src="" alt="Bike_Pose">
+                <label class="bikeposeSA">Shoulder Angle: <label id="sa" style="color:#011F3D;font-weight: normal;"></label></label>
+                <br><label class="bikeposeHF">Hip Flexion: <label id="hf"style="color:#011F3D;font-weight: normal;"></label></label><br>
+                <br><label class="bikeposeHE">Hip Extension: <label id="he"style="color:#011F3D;font-weight: normal;"></label></label><br>
+                <label class="bikeposeKE">Knee Flexion: <label id="kf"style="color:#011F3D;font-weight: normal;"></label></label>
+                <label class="bikeposeKF">Knee Extension: <label id="ke"style="color:#011F3D;font-weight: normal;"></label></label>
+            </div>
+            <div id="myChart" class="speedgraph"></div>
+            <div class="generalstats">
+            <label class="generalstatstext">Maximum speed: <label id="ms"style="color:#011F3D;font-weight: normal;"></label></label>
+            <label class="generalstatstext">Average speed: <label id="as"style="color:#011F3D;font-weight: normal;"></label></label>
+          <label class="generalstatstext">Maximum power: <label id="mp"style="color:#011F3D;font-weight: normal;"></label></label>
+          <label class="generalstatstext">Average power: <label id="ap"style="color:#011F3D;font-weight: normal;"></label></label>
+            <label class="generalstatstext">Calories Burnt: <label id="cb"style="color:#011F3D;font-weight: normal;"></label></label>
+            <label class="generalstatstext">Distance covered:  <label id="dc"style="color:#011F3D;font-weight: normal;"></label></label>
+        </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="load"class="loader"></div>
+  <div id="summary" class="summary">
+    <div id="speed-gauge" style="position:relative;left:180px;">
+      <div class="gauge">
+        <div class="slice">
+        </div>
+        <div class="slice">
+        </div>
+        <div class="slice">
+        </div>
+        <div class="slice">
+        </div>
+        <div class="slice">
+        </div>
+        <div class="slice">
+        </div>
+        <div class="slice">
+        </div>
+        <div class="slice">
+        </div>
+        <div class="slice">
+        </div>
+        <div class="subslice">
+        </div>
+        <div class="subslice">
+        </div>
+        <div class="subslice">
+        </div>
+        <div class="subslice">
+        </div>
+        <div class="subslice">
+        </div>
+        <div class="subslice">
+        </div>
+        <div class="subslice">
+        </div>
+        <div class="subslice">
+        </div>
+        <div class="rpm"></div>
+        <div class="rpm">1</div>
+        <div class="rpm">2</div>
+        <div class="rpm">3</div>
+        <div class="rpm">4</div>
+        <div class="rpm">5</div>
+        <div class="rpm">6</div>
+        <div class="rpm">7</div>
+        <div class="rpm">8</div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSlice">
+        </div>
+        <div class="rpmSpeed"></div>
+        <div class="rpmSpeed">6</div>
+        <div class="rpmSpeed">12</div>
+        <div class="rpmSpeed">18</div>
+        <div class="rpmSpeed">24</div>
+        <div class="rpmSpeed">30</div>
+        <div class="rpmSpeed">36</div>
+        <div class="rpmSpeed">42</div>
+        <div class="rpmSpeed">48</div>
+        <div class="rpmSpeed">54</div>
+        <div class="rpmSpeed">60</div>
+        <div class="rpmSpeed">66</div>
+        <div class="rpmSpeed">72</div>
+        <div class="rpmSpeed">78</div>
+        <div class="rpmSpeed">84</div>
+        <div class="rpmSpeed">90</div>
+        <div class="rpmSpeed">96</div>
+        <div class="rpmSpeed">km/h</div>
+        <div id="sui">
+        </div>
+        <div id="SUICIRCLE" class="suiCircle">
+        </div>
+        <div class="bottomStroke">
+          <div class="speedplus"></div>
+          <div style="position: absolute; left: 50%; top: 24%; ">
+            <div class="gear" style="color: orange">P</div>
+            <div class="gear" style="color: orangered">R</div>
+            <div class="gear" style="color: green">N</div>
+            <div id="dgear" class="gear" style="color: whitesmoke;font-size: 18px;margin-top: -6px;">D</div>
+            <div class="gear" style="color: coral">B</div>
+          </div>
+        </div>
+        <div class="gauge-circle-1">
+        </div>
+      </div>
+    </div>
+    <a id="start" style="position:relative;bottom: 100px;left:140px" href="javascript:startSession()" class="btn btn-lg btn-success">Start Session
+      <span class="glyphicon glyphicon-play">
+      </span>
+    </a>
+    <div id="odometer" class="odometer" style="position:relative;width:370px;font-size: 50px;left:330px;top:10px;">11,000</div>
+    <label id="seconds"class="seconds"for="Seconds">seconds</label>
+    <label class="watts"for="Watts">watts</label>
+    <a id = "stop" style="position:relative;left:100px;bottom:35px;visibility:hidden" href = "javascript:stopSession()" class = "btn btn-lg btn-warning"><span class = "glyphicon glyphicon-stop"></span> End Session</a>
+    <div id="chartdiv" ></div>
+    <div id="counter" class="tick" data-value="00" data-did-init="setupFlip" style="position:relative;bottom:550px;left:10px;font-size: 130px;visibility: hidden">
+      <!-- Hide visual content from screenreaders with `aria-hidden` -->
+      <div data-repeat="true" aria-hidden="true">
+        <span id="text"data-view="flip">
+        </span>
+      </div>
+    
+    </div>
+    <div id="" style="visibility: hidden;">
+		<input type="text" style="width:90px" placeholder="Speed in Km/h" id="Give">
+		<button id="SpeedCheck" class="btn-group-lg">Check Speed</button>
+	</div>
+  <div class="stats" id="stats">
+      <!--width: 130px;-->
+      <label id="avgspd"class="statstext" style="font-weight: normal;background-color: #5cccba;color:#011F3D;border-radius: 5px;" >Average Speed<br> 40 km/h</label>
+      <label id="avgpower"class="statstext" Style="font-weight: normal;background-color: #5cccba;color:#011F3D;border-radius: 5px;">Average Power<br> 150 w</label>
+      <label id="distance"class="statstext" Style="font-weight: normal;background-color: #5cccba;color:#011F3D;border-radius: 5px;">Total Distance Travelled<br> 200 m</label>
+      <label id="calories"class="statstext" Style="font-weight: normal;background-color: #5cccba;color:#011F3D;border-radius: 5px;">Total Calories Burnt<br> 200 cal</label>
+    <div style="background-color: #f2f2ea;top:0px;position:relative;border-radius: 25px;">
+        <div id="historytable"style="width:800px;position: relative;left:25px">
+        
+    </div>
+  </div>
+  </div>
+  <div class=tablestats id="table">
+    
+    <div  style="background-color: #f2f2ea;position:relative;border-radius: 25px;height: 480px;bottom:10px">
+        <label id="rank" class="statstext" style="font-weight: normal;padding-left:0px;position: relative;top:0px;font-size: 20px;color: #011F3D;background-color:#5cccba" ></label>
+        <div id="leaderboardtable"style="height:380px;width:800px;position: relative;left:25px;bottom:35px">
+        
+    </div>
+    </div>
+    <script>
+      google.charts.load('current',{packages:['corechart']});
+google.charts.setOnLoadCallback(drawChart);
+
+function drawChart() {
+// Set Data
+var data = google.visualization.arrayToDataTable([
+  ['Speed', 'Time'],
+  [50,7],[60,8],[70,8],[80,9],[90,9],
+  [100,9],[110,10],[120,11],
+  [130,14],[140,14],[150,15]
+]);
+// Set Options
+var options = {
+    'width':500,
+  'height':500,
+  title: 'Speed vs. Time',
+  hAxis: {title: 'Time in Seconds'},
+  vAxis: {title: 'Speed in km/h'},
+  legend: 'none'
+};
+// Draw
+var chart = new google.visualization.LineChart(document.getElementById('myChart'));
+chart.draw(data, options);
+}
+    </script>
+</div> 
+</div>
+</body>
+<script src="JS/power_gauge.js"></script>
+<script src="JS/main_file.js"></script>
+<link rel="stylesheet" href="CSS/main_file.css">
+</html>
