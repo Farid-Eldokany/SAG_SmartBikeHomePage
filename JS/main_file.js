@@ -7,27 +7,28 @@ var table = document.getElementById("table");
 var start = document.getElementById("start");
 var stopp = document.getElementById("stop");
 var odometer = document.getElementById("odometer");
-var state={}
-state.active=false
-var power=0
-var prevSpeed=0
-var speed=25
+var state = {}
+state.active = false
+var power = 0
+var prevSpeed = 0
+var speed = 25
 var counter = document.getElementById("counter");
 var seconds = document.getElementById("seconds");
 var main1 = document.getElementById("main1");
 var waiting = document.getElementById("waiting");
-var hide=document.getElementById("filter-id-71")
-var sessionList=[]
-hide.style.display="none"
+var hide = document.getElementById("filter-id-71")
+var sessionList = []
+hide.style.block = "hidden"
 var device_id = 2426047;
 var device_id2 = 2401442;
-var loginPrev=""
-var load=false
+var loginPrev = ""
+var load = false
 var realtime_url = 'https://swagdxb.eu-latest.cumulocity.com/notification/realtime';
 var chTab = {}
 var activateCounter = {};
 chTab.speed = 1500;
 activateCounter.flag = false;
+
 var powerMeterInterval;
 
 var measurements = {
@@ -40,11 +41,11 @@ var measurements = {
     'total_distance': 0
 
 }
-main1.style.visibility="hidden"
+
 let headers = new Headers();
 headers.set('Authorization', 'Basic ZmFyaWQuZWxkb2thbnlAZ21haWwuY29tOkBTQUdmYXJpZDIwMjE=')
 headers.set('Content-type', 'application/json')
-var wait=setInterval((
+var wait = setInterval((
     get
 ), 1000);
 var toggle = function(e, b1, b2) {
@@ -57,11 +58,11 @@ var toggle = function(e, b1, b2) {
     newSessionButton.style.webkitAnimationPlayState = "running";
     leaderboardButton.style.webkitAnimationPlayState = "running";
     historyButton.style.webkitAnimationPlayState = "running"
-    if(load==false){
-        document.getElementById("load").style.visibility="visible"
-        load=true
+    if (load == false) {
+        document.getElementById("load").style.visibility = "visible"
+        load = true
     }
-    
+
     if (e.id == "newsession") {
         return newSession()
     }
@@ -69,47 +70,59 @@ var toggle = function(e, b1, b2) {
         return history()
     }
     if (e.id == "leaderboard") {
-         return leaderboard()
+        return leaderboard()
     }
 }
-function main() {
-    waiting.style.visibility="hidden"
-    main1.style.visibility="visible"
-}
-function get(){
-    state.active=true
+
+function get() {
+    state.active = true
     fetchText()
 }
-function updateLeaderboard(data){
-    fetch('https://swagdxb.eu-latest.cumulocity.com/inventory/managedObjects/'+device_id.toString(), {
-        method: 'PUT',
-        body: data, 
-        mode:"cors",
-        headers: headers
-        });}
-function checkLogin(data){
-    state.active=false
-    var response=JSON.parse(data);
-    var login =response["login"];
-    if(loginPrev!==login){
-        loginPrev=login
-    if(login==true){
-        main()
-    }else{
-        waiting.style.visibility="visible"
-    }
-}}
-async function fetchText() {
-    if(state.active){
-    let response = await fetch('https://swagdxb.eu-latest.cumulocity.com/inventory/managedObjects/'+device_id.toString(),{mode:"cors",headers:headers});
-    var data=await response.text()
-    return checkLogin(data)} }
 
-function updatePower(){
+function updateLeaderboard(data) {
+    fetch('https://swagdxb.eu-latest.cumulocity.com/inventory/managedObjects/' + device_id.toString(), {
+        method: 'PUT',
+        body: data,
+        mode: "cors",
+        headers: headers
+    });
+}
+
+function checkLogin(data) {
+    state.active = false
+    var response = JSON.parse(data);
+    var login = response["login"];
+
+    if (loginPrev !== login) {
+
+        loginPrev = login
+        if (login) {
+            console.log(login.toString() + ":" + loginPrev.toString())
+            waiting.style.display = "none"
+            main1.style.display = "block"
+            console.log("here")
+        } else {
+            waiting.style.display = "block"
+            main1.style.display = "none"
+        }
+    }
+}
+async function fetchText() {
+    if (state.active) {
+        let response = await fetch('https://swagdxb.eu-latest.cumulocity.com/inventory/managedObjects/' + device_id.toString(), {
+            mode: "cors",
+            headers: headers
+        });
+        var data = await response.text()
+        return checkLogin(data)
+    }
+}
+
+function updatePower() {
     var value = power;
     var animation = new am4core.Animation(hand, {
-      property: "value",
-      to: value
+        property: "value",
+        to: value
     }, 200, am4core.ease.cubicOut).start();
 }
 
@@ -148,7 +161,7 @@ async function subscribe(client_id) {
             method: 'POST',
             body: JSON.stringify({
                 "channel": "/meta/subscribe",
-                "subscription": "/measurements/"+device_id.toString(),
+                "subscription": "/measurements/" + device_id.toString(),
                 "clientId": client_id
             }),
             headers: headers
@@ -184,49 +197,49 @@ async function poll_data(client_id)
 
 
 function get_data(client_id) {
-    if(activateCounter.flag==false ){
-        odometer.innerHTML=0
-        speed=0
+    if (activateCounter.flag == false) {
+        odometer.innerHTML = 0
+        speed = 0
         speedStart(0)
-        power=0
+        power = 0
         clearInterval(powerMeterInterval)
-        return 
+        return
     }
     poll_data(client_id).then(telemetry => {
-  
+
 
         if (telemetry.length > 1) {
             itervar = 0;
             for (itervar = 0; itervar < telemetry.length - 1; itervar++) {
 
-           
+
 
                 type = telemetry[itervar].data.data.type
 
                 if (type == 'SessionTotalDistance')
 
                 {
-                    odometer.innerHTML=telemetry[itervar].data.data.SessionTotalDistance.STD.value
-               
+                    odometer.innerHTML = telemetry[itervar].data.data.SessionTotalDistance.STD.value
+
                 }
 
                 if (type == 'SessionSpeed')
 
                 {
-                 
-                    
-                    speed=telemetry[itervar].data.data.SessionSpeed.SS.value
+
+
+                    speed = telemetry[itervar].data.data.SessionSpeed.SS.value
                     speedStart()
-                    
+
                 }
 
                 if (type == 'BikePower')
 
                 {
-                    power=telemetry[itervar].data.data.BikePower.BP.value
-                  
+                    power = telemetry[itervar].data.data.BikePower.BP.value
 
-                 
+
+
                 }
 
 
@@ -242,7 +255,8 @@ function get_data(client_id) {
 
 function sendCommand(id, command) {
     fetch('https://swagdxb.eu-latest.cumulocity.com/devicecontrol/operations', {
-        method: 'POST',mode:"cors",
+        method: 'POST',
+        mode: "cors",
         body: JSON.stringify({
             "deviceId": id,
             "c8y_Command": {
@@ -301,10 +315,10 @@ function speedStart() {
 
     (function($) {
         $.fn.countTo = function(options) {
-            
+
             options = $.extend({}, $.fn.countTo.defaults, options || {});
 
-            
+
             var loops = Math.ceil(options.speed / options.refreshInterval),
                 increment = (options.to - options.from) / loops;
 
@@ -336,13 +350,13 @@ function speedStart() {
         };
 
         $.fn.countTo.defaults = {
-            from: 0, 
-            to: 100, 
-            speed: 1000, 
-            refreshInterval: 100, 
-            decimals: 0, 
-            onUpdate: null, 
-            onComplete: null, 
+            from: 0,
+            to: 100,
+            speed: 1000,
+            refreshInterval: 100,
+            decimals: 0,
+            onUpdate: null,
+            onComplete: null,
         };
     })(jQuery);
 
@@ -357,8 +371,8 @@ function speedStart() {
             }
         });
     })
-    prevSpeed=speed;
-  
+    prevSpeed = speed;
+
 
 
 };
@@ -368,14 +382,7 @@ function setupFlip(tick) {
     Tick.helper.interval(function() {
         if (activateCounter.flag) {
             if (tick.value == 0) {
-
-                activateCounter.flag = false;
-                tick.value = 15
-                stopp.style.visibility = "hidden"
-                counter.style.visibility = "hidden"
-                counter.style.color = "#FFFFFFS"
-                start.style.visibility = "visible"
-                seconds.style.visibility = "hidden"
+                stopSession()
 
             }
 
@@ -394,32 +401,67 @@ function setupFlip(tick) {
 
 
 
-async function getDataa(parse){
-    if(state.active == true){
-        let response = await fetch('https://swagdxb.eu-latest.cumulocity.com/inventory/managedObjects/'+device_id.toString(),{mode:"cors",headers:headers});
-        data=await response.text();
-        parse(data);                    
+async function getDataa(parse) {
+    if (state.active == true) {
+        let response = await fetch('https://swagdxb.eu-latest.cumulocity.com/inventory/managedObjects/' + device_id.toString(), {
+            mode: "cors",
+            headers: headers
+        });
+        var data = await response.text();
+        parse(data);
     }
 }
-function getSessionData(data){
-    var response=JSON.parse(data);
-    var leaderboard={leaderboard:response["leaderboard"]};
-    var leaderboardKeys=Object.keys(response["leaderboard"][response["contestantEmail"]])
-    var mailKeys=""
+
+function getSessionData(data) {
+    var response = JSON.parse(data);
+    var leaderboard = {
+        leaderboard: response["leaderboard"]
+    };
+    var leaderboardKeys = Object.keys(response["leaderboard"][response["contestantEmail"]])
+    var mailKeys = ""
     //sendEmail(response["contestantName"],response["contestantEmail"],response["contestantAverageSpeed"],response["contestantMaximumSpeed"],response["contestantCaloriesBurnt"],response["contestantDistanceCovered"])
-    if(leaderboardKeys.includes("session_1")){
-        mailKeys=Object.keys(leaderboard["leaderboard"][response["contestantEmail"]])
-        leaderboard["leaderboard"][response["contestantEmail"]]["session_"+(mailKeys.length-1).toString()]={avgspd:response["contestantAverageSpeed"],maxspd:response["contestantMaximumSpeed"],distcvd:response["contestantDistanceCovered"],calbrnt:response["contestantCaloriesBurnt"],power:response["contestantCyclingPower"],avgpower:response["contestantAverageCyclingPower"],image:response["pose_url"]}
-    }else{
-        leaderboard["leaderboard"][response["contestantEmail"]]["session_1"]={avgspd:response["contestantAverageSpeed"],maxspd:response["contestantMaximumSpeed"],distcvd:response["contestantDistanceCovered"],calbrnt:response["contestantCaloriesBurnt"],power:response["contestantCyclingPower"],avgpower:response["contestantAverageCyclingPower"],image:response["pose_url"]}
+    if (leaderboardKeys.includes("session_1")) {
+        mailKeys = Object.keys(leaderboard["leaderboard"][response["contestantEmail"]])
+        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (mailKeys.length - 1).toString()] = {
+            avgspd: response["contestantAverageSpeed"],
+            maxspd: response["contestantMaximumSpeed"],
+            distcvd: response["contestantDistanceCovered"],
+            calbrnt: response["contestantCaloriesBurnt"],
+            power: response["contestantCyclingPower"],
+            avgpower: response["contestantAverageCyclingPower"],
+            image: response["pose_url"],
+            KneeFlexion: response["KneeFlexion"],
+            KneeExtension: response["KneeExtension"],
+            HipExtension: response["KneeFlexion"],
+            HipFlexion: response["HipFlexion"],
+            ShoulderAngle: response["ShoulderAngle"]
+        }
+    } else {
+        leaderboard["leaderboard"][response["contestantEmail"]]["session_1"] = {
+            avgspd: response["contestantAverageSpeed"],
+            maxspd: response["contestantMaximumSpeed"],
+            distcvd: response["contestantDistanceCovered"],
+            calbrnt: response["contestantCaloriesBurnt"],
+            power: response["contestantCyclingPower"],
+            avgpower: response["contestantAverageCyclingPower"],
+            image: response["pose_url"],
+            KneeFlexion: response["KneeFlexion"],
+            KneeExtension: response["KneeExtension"],
+            HipExtension: response["KneeFlexion"],
+            HipFlexion: response["HipFlexion"],
+            ShoulderAngle: response["ShoulderAngle"]
+        }
     }
-    updateLeaderboard(JSON.stringify({"leaderboard":leaderboard["leaderboard"]}));
+    updateLeaderboard(JSON.stringify({
+        "leaderboard": leaderboard["leaderboard"]
+    }));
 }
+
 function stopSession() {
     activateCounter.flag = false;
-    sendCommand(device_id.toString(),"stop")
-    sendCommand(device_id2.toString(),"stop")
-    state.active=true
+    sendCommand(device_id.toString(), "stop")
+    sendCommand(device_id2.toString(), "stop")
+    state.active = true
     getDataa(getSessionData)
     stopp.style.visibility = "hidden"
     counter.style.visibility = "hidden"
@@ -434,17 +476,16 @@ function startSession() {
     seconds.style.visibility = "visible"
     sendCommand(device_id.toString(), "start")
     sendCommand(device_id2.toString(), "start")
-    powerMeterInterval=setInterval(
-        updatePower
-      , 200);
-    
+    powerMeterInterval = setInterval(
+        updatePower, 200);
+
     connect().then(client => {
         console.log(client[0].clientId);
         client_id = client[0].clientId
 
         subscribe(client_id).then(subscription => {
 
-            
+
             get_data(client_id)
 
         });
@@ -455,147 +496,167 @@ function startSession() {
 }
 
 function logout() {
-    fetch('https://swagdxb.eu-latest.cumulocity.com/inventory/managedObjects/'+device_id.toString(), {
-                        method: 'PUT',
-                        body: JSON.stringify({"login":false}), 
-                        headers: headers,
-                        mode:"cors"
-                        });
-    main1.style.visibility="hidden"
-    waiting.style.visibility="visible"
+    fetch('https://swagdxb.eu-latest.cumulocity.com/inventory/managedObjects/' + device_id.toString(), {
+        method: 'PUT',
+        body: JSON.stringify({
+            "login": false
+        }),
+        headers: headers,
+        mode: "cors"
+    });
+    setTimeout(function() {
+        window.location.reload(false);
+    }, 1000);
+
+
 }
 
 function newSession() {
-    stats.style.visibility = "hidden"
-    table.style.visibility = "hidden"
+    stats.style.display = "none"
+    table.style.display = "none"
     setTimeout(function() {
-        summary.style.visibility = "visible"
-        start.style.visibility = "visible"
-        
+        summary.style.display = "block"
+
         chTab.speed = 800
     }, chTab.speed);
 }
 
 function leaderboard() {
-    start.style.visibility = "hidden"
-    stats.style.visibility = "hidden"
-    summary.style.visibility = "hidden"
+    stats.style.display = "none"
+    summary.style.display = "none"
     setTimeout(function() {
-        table.style.visibility = "visible"
-        state.active=true
+        table.style.display = "block"
+        state.active = true
         getDataa(parseLeaderboard)
+
         chTab.speed = 800
-    }, chTab.speed);
+    }, 1500);
 }
-function addRow(name,rank,points,maximumSpeed,averageSpeed,maximumPower,averagePower,distance,calories) {
-    var suffix="th"
-    if (rank==1.0){
-        suffix="st"
+
+function addRow(name, rank, points, maximumSpeed, averageSpeed, maximumPower, averagePower, distance, calories) {
+    var suffix = "th"
+    if (rank == 1.0) {
+        suffix = "st"
     }
-    if(rank==2.0){
-        suffix="nd"
+    if (rank == 2.0) {
+        suffix = "nd"
     }
-    if(rank==3.0){
-        suffix="rd"
+    if (rank == 3.0) {
+        suffix = "rd"
     }
-    document.getElementById("leaderboardrows").innerHTML += '<tr><td>'+rank+suffix+'<td>'+points+' pts<td>'+name+'<td>'+maximumSpeed+' km/hr<td>'+averageSpeed+' km/hr<td>'+maximumPower+' w<td>'+averagePower+' w<td>'+distance+' m<td>'+calories
+    document.getElementById("leaderboardrows").innerHTML += '<tr><td>' + rank + suffix + '<td>' + points + ' pts<td>' + name + '<td>' + maximumSpeed + ' km/hr<td>' + averageSpeed + ' km/hr<td>' + maximumPower + ' w<td>' + averagePower + ' w<td>' + distance + ' m<td>' + calories
 }
+
 function history() {
-    start.style.visibility = "hidden"
-    summary.style.visibility = "hidden"
-    table.style.visibility = "hidden"
+    summary.style.display = "none"
+    table.style.display = "none"
     setTimeout(function() {
-        state.active=true
+        state.active = true
+        stats.style.display = "block"
         getDataa(parseSession)
-        stats.style.visibility = "visible"
+
         chTab.speed = 800
     }, chTab.speed);
 }
-function addSession(session,avgspd,avgpower,distance,calories){
-    document.getElementById("historyrows").innerHTML += "<tr><td><button id='"+"s"+session.slice(8)+"' type='button' onclick='popUp(id)' class='btn  btn-rounded  btn-block btn-lg' data-mdb-ripple-color='#ffffff' style='background-color:#5cccba;color:#011F3D'>"+session+"</button>"
+
+function addSession(session) {
+    document.getElementById("historyrows").innerHTML += "<tr><td><button id='" + "s" + session.slice(8) + "' type='button' onclick='popUp(id)' class='btn  btn-rounded  btn-block btn-lg' data-mdb-ripple-color='#ffffff' style='background-color:#5cccba;color:#011F3D'>" + session + "</button>"
 }
-function popUp(id){
-    var index=id.slice(1)
-    var session=sessionList["session_"+index]
+
+function popUp(id) {
+    var index = id.slice(1)
+    var session = sessionList["session_" + index]
     console.log(sessionList)
-    var name=sessionList["name"]
-    document.getElementById("cn").innerHTML =name.charAt(0).toUpperCase() + name.slice(1)
-    document.getElementById("bpi").src=session["image"];
-    document.getElementById("sa").innerHTML =session["ShoulderAngle"].toString()+" degrees"
-    document.getElementById("hf").innerHTML =session["HipFlexion"].toString()+" degrees"
-    document.getElementById("kf").innerHTML =session["KneeFlexion"].toString()+" degrees"
-    document.getElementById("he").innerHTML =session["HipExtension"].toString()+" degrees"
-    document.getElementById("ke").innerHTML =session["KneeExtension"].toString()+" degrees"
-    document.getElementById("ms").innerHTML =session["maxspd"].toString()+" km/hr"
-    document.getElementById("as").innerHTML =session["avgspd"].toString()+" km/hr"
-    document.getElementById("mp").innerHTML =session["power"].toString()+" w"
-    document.getElementById("ap").innerHTML =session["avgpower"].toString()+" w"
-    document.getElementById("cb").innerHTML =session["calbrnt"].toString()+" cal"
-    document.getElementById("dc").innerHTML =session["distcvd"].toString()+" m"
+    var name = sessionList["name"]
+    document.getElementById("cn").innerHTML = name.charAt(0).toUpperCase() + name.slice(1)
+    document.getElementById("bpi").src = session["image"];
+    document.getElementById("sa").innerHTML = session["ShoulderAngle"].toString() + " degrees"
+    document.getElementById("hf").innerHTML = session["HipFlexion"].toString() + " degrees"
+    document.getElementById("kf").innerHTML = session["KneeFlexion"].toString() + " degrees"
+    document.getElementById("he").innerHTML = session["HipExtension"].toString() + " degrees"
+    document.getElementById("ke").innerHTML = session["KneeExtension"].toString() + " degrees"
+    document.getElementById("ms").innerHTML = session["maxspd"].toString() + " km/hr"
+    document.getElementById("as").innerHTML = session["avgspd"].toString() + " km/hr"
+    document.getElementById("mp").innerHTML = session["power"].toString() + " w"
+    document.getElementById("ap").innerHTML = session["avgpower"].toString() + " w"
+    document.getElementById("cb").innerHTML = session["calbrnt"].toString() + " cal"
+    document.getElementById("dc").innerHTML = session["distcvd"].toString() + " m"
     $("#myModal").modal('toggle');
 }
-function parseSession(data){
-    state.active=false
-    document.getElementById("historytable").innerHTML ="<table cellspacing=0 data-page-length='3' class='table table-bordered table-hover table-inverse table-striped'id=example width=100%><thead><tr><th>Session<tfoot><tr><th>Session<tbody id='historyrows' ></table>"
-    var response=JSON.parse(data);
-    sessionList=response["leaderboard"][response["contestantEmail"]]
+
+function parseSession(data) {
+    state.active = false
+    document.getElementById("historytable").innerHTML = "<table cellspacing=0 data-page-length='3' class='table table-bordered table-hover table-inverse table-striped'id=example width=100%><thead><tr><th>Session<tfoot><tr><th>Session<tbody id='historyrows' ></table>"
+    var response = JSON.parse(data);
+    sessionList = response["leaderboard"][response["contestantEmail"]]
     console.log(response)
-    var sessionListLength=Object.keys(sessionList).length
-    
-    document.getElementById("avgspd").innerHTML = "Average Speed<br>"+sessionList["AverageSpeed"].toString()+" km/hr"
-    document.getElementById("avgpower").innerHTML = "Average Power<br>"+sessionList["AveragePower"].toString()+" w"
-    document.getElementById("distance").innerHTML = "Total Distance Travelled<br>"+sessionList["TotalDistTravelled"].toString()+" m"
-    document.getElementById("calories").innerHTML = "Total Calories Burnt<br>"+sessionList["TotalCalBurnt"].toString()+" cal"
-    if(sessionListLength>6){
-        
-        for (let index = 1; index < sessionListLength-5; index++) {
-            addSession("Session "+index.toString())
+    var sessionListLength = Object.keys(sessionList).length
+
+    document.getElementById("avgspd").innerHTML = "Average Speed<br>" + sessionList["AverageSpeed"].toString() + " km/hr"
+    document.getElementById("avgpower").innerHTML = "Average Power<br>" + sessionList["AveragePower"].toString() + " w"
+    document.getElementById("distance").innerHTML = "Total Distance Travelled<br>" + sessionList["TotalDistTravelled"].toString() + " m"
+    document.getElementById("calories").innerHTML = "Total Calories Burnt<br>" + sessionList["TotalCalBurnt"].toString() + " cal"
+    if (sessionListLength > 6) {
+
+        for (let index = 1; index < sessionListLength - 5; index++) {
+            addSession("Session " + index.toString())
+        }
+        $(document).ready(function() {
+            $('#example').DataTable();
+        });
+        setTimeout(function() {
+            document.getElementById("example_length").style.visibility = "hidden";
+            document.getElementById("example_info").style.left = "5px";
+        }, 50)
     }
-    $(document).ready(function() {$('#example').DataTable();});
-    setTimeout(function() {document.getElementById("example_length").style.display = "none";
-    document.getElementById("example_info").style.left = "5px";
-},50)
-}}
-function parseLeaderboard(data){
-    state.active=false
-    document.getElementById("leaderboardtable").innerHTML ="<table cellspacing=0 data-page-length='4'class='table table-bordered table-hover table-inverse table-striped'id=example1 width=100% ><thead style='background-color: #5cccba;'><tr style='font-weight: normal'><th>Rank<th>Points<th>name<th>Maximum Speed<th>Average Speed<th>Maximum Power<th>Average Power<th>Total Distance Covered<th>Total Calories Burnt<tfoot style='font-weight: normal;background-color: #5cccba;'><tr><th>Rank<th>Points<th>name<th>Maximum Speed<th>Average Speed<th>Maximum Power<th>Average Power<th>Total Distance Covered<th>Total Calories Burnt<tbody id='leaderboardrows' style='font-weight: normal;'></table>"
-    var response=JSON.parse(data);
-    var leaderboard=response["leaderboard_ranked"]
-    var currentSession=leaderboard[response["contestantEmail"]]
-    var currentLength=Object.keys(currentSession).length
-    if(currentLength>6){
-        updateRank(currentSession["session_"+(currentLength-6).toString()]["rank"])
-    }else{
+}
+
+function parseLeaderboard(data) {
+    state.active = false
+    document.getElementById("leaderboardtable").innerHTML = "<table cellspacing=0 data-page-length='4'class='table table-bordered table-hover table-inverse table-striped'id=example1 width=100% ><thead style='background-color: #5cccba;'><tr style='font-weight: normal'><th>Rank<th>Points<th>name<th>Maximum Speed<th>Average Speed<th>Maximum Power<th>Average Power<th>Total Distance Covered<th>Total Calories Burnt<tfoot style='font-weight: normal;background-color: #5cccba;'><tr><th>Rank<th>Points<th>name<th>Maximum Speed<th>Average Speed<th>Maximum Power<th>Average Power<th>Total Distance Covered<th>Total Calories Burnt<tbody id='leaderboardrows' style='font-weight: normal;'></table>"
+    var response = JSON.parse(data);
+    var leaderboard = response["leaderboard_ranked"]
+    var currentSession = leaderboard[response["contestantEmail"]]
+    var currentLength = Object.keys(currentSession).length
+    if (currentLength > 6) {
+        updateRank(currentSession["session_" + (currentLength - 6).toString()]["rank"])
+    } else {
         updateRank("none")
     }
-    
-    var keyList=Object.keys(leaderboard)
+
+    var keyList = Object.keys(leaderboard)
     for (var key in keyList) {
-        var session=leaderboard[keyList[key]]
-        var length=Object.keys(session).length
-        var name=session["name"]
-        if(length>6){
-            session =session["session_"+(length-6).toString()]
+        var session = leaderboard[keyList[key]]
+        var length = Object.keys(session).length
+        var name = session["name"]
+        if (length > 6) {
+            session = session["session_" + (length - 6).toString()]
             console.log(session)
-            addRow(name,session["rank"],session["score"],session["maxspd"],session["avgspd"],session["power"],session["avgpower"],session["distcvd"],session["calbrnt"])
+            addRow(name, session["rank"], session["score"], session["maxspd"], session["avgspd"], session["power"], session["avgpower"], session["distcvd"], session["calbrnt"])
         }
     }
-    $(document).ready(function() {$('#example1').DataTable();});
-    setTimeout(function() {document.getElementById("example1_length").style.display = "none";},1)
+    $(document).ready(function() {
+        $('#example1').DataTable();
+    });
+    setTimeout(function() {
+        document.getElementById("example1_length").style.visibility = "hidden";
+    }, 1)
 }
-function updateRank(rank){
-    if (rank=="none"){
-        document.getElementById("rank").innerHTML ="unranked"
-    }else{
-    var suffix="th"
-    if (rank==1.0){
-        suffix="st"
+
+function updateRank(rank) {
+    if (rank == "none") {
+        document.getElementById("rank").innerHTML = "unranked"
+    } else {
+        var suffix = "th"
+        if (rank == 1.0) {
+            suffix = "st"
+        }
+        if (rank == 2.0) {
+            suffix = "nd"
+        }
+        if (rank == 3.0) {
+            suffix = "rd"
+        }
+        document.getElementById("rank").innerHTML = "Rank: " + rank.toString() + suffix
     }
-    if(rank==2.0){
-        suffix="nd"
-    }
-    if(rank==3.0){
-        suffix="rd"
-    }
-    document.getElementById("rank").innerHTML ="Rank: "+rank.toString()+suffix
-}}
+}
