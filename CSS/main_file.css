@@ -80,7 +80,8 @@ body {
 	font: normal bold 26px/1 "Open Sans", sans-serif;
 	text-align: center;
 	position: absolute;
-	left: 535px;
+	left: 500px;
+    width: 250px;
 	top: 320px;
 	animation-name: history;
 	animation-duration: 2s;

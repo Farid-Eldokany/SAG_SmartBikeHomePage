@@ -1,3 +1,4 @@
+//import "charts.js";
 var newSessionButton = document.getElementById("newsession");
 var leaderboardButton = document.getElementById("leaderboard");
 var historyButton = document.getElementById("history");
@@ -11,7 +12,7 @@ var state = {}
 state.active = false
 var power = 0
 var prevSpeed = 0
-var speed = 25
+var speed = 0
 var counter = document.getElementById("counter");
 var seconds = document.getElementById("seconds");
 var main1 = document.getElementById("main1");
@@ -29,6 +30,7 @@ var activateCounter = {};
 chTab.speed = 1500;
 activateCounter.flag = false;
 
+var graph;
 var powerMeterInterval;
 
 var measurements = {
@@ -74,6 +76,27 @@ var toggle = function(e, b1, b2) {
     }
 }
 
+function creatChart(){
+    google.charts.load('current',{packages:['corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+            
+            function drawChart() {
+            // Set Data
+            var data = google.visualization.arrayToDataTable(graph);
+            // Set Options
+            var options = {
+            'width':500,
+            'height':500,
+            title: 'Speed vs. Time',
+            hAxis: {title: 'Time in Seconds'},
+            vAxis: {title: 'Speed in km/h'},
+            legend: 'none'
+            };
+            // Draw
+            var chart = new google.visualization.LineChart(document.getElementById('myChart'));
+            chart.draw(data, options);
+            }
+}
 function get() {
     state.active = true
     fetchText()
@@ -219,6 +242,7 @@ function get_data(client_id) {
                 if (type == 'SessionTotalDistance')
 
                 {
+                    console.log(telemetry[itervar].data.data.SessionTotalDistance.STD.value)
                     odometer.innerHTML = telemetry[itervar].data.data.SessionTotalDistance.STD.value
 
                 }
@@ -385,13 +409,13 @@ function setupFlip(tick) {
                 stopSession()
 
             }
-
+            graph.push([speed,tick.value])
             tick.value--;
 
 
 
         } else {
-            tick.value = 15
+            tick.value = 30
 
         }
         tick.root.setAttribute('aria-label', tick.value);
@@ -422,7 +446,7 @@ function getSessionData(data) {
     //sendEmail(response["contestantName"],response["contestantEmail"],response["contestantAverageSpeed"],response["contestantMaximumSpeed"],response["contestantCaloriesBurnt"],response["contestantDistanceCovered"])
     if (leaderboardKeys.includes("session_1")) {
         mailKeys = Object.keys(leaderboard["leaderboard"][response["contestantEmail"]])
-        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (mailKeys.length - 1).toString()] = {
+        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (mailKeys.length - 5).toString()] = {
             avgspd: response["contestantAverageSpeed"],
             maxspd: response["contestantMaximumSpeed"],
             distcvd: response["contestantDistanceCovered"],
@@ -434,7 +458,8 @@ function getSessionData(data) {
             KneeExtension: response["KneeExtension"],
             HipExtension: response["KneeFlexion"],
             HipFlexion: response["HipFlexion"],
-            ShoulderAngle: response["ShoulderAngle"]
+            ShoulderAngle: response["ShoulderAngle"],
+            SpeedGraph:graph
         }
     } else {
         leaderboard["leaderboard"][response["contestantEmail"]]["session_1"] = {
@@ -449,7 +474,8 @@ function getSessionData(data) {
             KneeExtension: response["KneeExtension"],
             HipExtension: response["KneeFlexion"],
             HipFlexion: response["HipFlexion"],
-            ShoulderAngle: response["ShoulderAngle"]
+            ShoulderAngle: response["ShoulderAngle"],
+            SpeedGraph:graph
         }
     }
     updateLeaderboard(JSON.stringify({
@@ -468,8 +494,26 @@ function stopSession() {
     start.style.visibility = "visible"
     seconds.style.visibility = "hidden"
 }
-
+function sendEmail(name,mail,avgspeed,maxspeed,calbrnt,distcvrd) {
+    //var doc = new jsPDF();
+    Email.send({
+        Host: "smtp.gmail.com",
+        Username: "smartbike.sag@gmail.com",
+        Password: "GITEX2021",
+        To: mail,
+        From: "smartbike.sag@gmail.com",
+        Subject: "Smart Bike Session Stats",
+        Body: "",
+        Attachments : [
+            {
+                name : session.pdf,
+                data : dataUri
+            }]
+    })
+        
+}
 function startSession() {
+    graph=['Speed', 'Time']
     start.style.visibility = "hidden"
     counter.style.visibility = "visible"
     stopp.style.visibility = "visible"
@@ -566,6 +610,8 @@ function addSession(session) {
 function popUp(id) {
     var index = id.slice(1)
     var session = sessionList["session_" + index]
+    graph=session["SpeedGraph"]
+    creatChart()
     console.log(sessionList)
     var name = sessionList["name"]
     document.getElementById("cn").innerHTML = name.charAt(0).toUpperCase() + name.slice(1)

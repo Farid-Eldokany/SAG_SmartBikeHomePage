@@ -215,30 +215,7 @@
             </div>
          </div>
          <script>
-            google.charts.load('current',{packages:['corechart']});
-            google.charts.setOnLoadCallback(drawChart);
             
-            function drawChart() {
-            // Set Data
-            var data = google.visualization.arrayToDataTable([
-            ['Speed', 'Time'],
-            [50,7],[60,8],[70,8],[80,9],[90,9],
-            [100,9],[110,10],[120,11],
-            [130,14],[140,14],[150,15]
-            ]);
-            // Set Options
-            var options = {
-            'width':500,
-            'height':500,
-            title: 'Speed vs. Time',
-            hAxis: {title: 'Time in Seconds'},
-            vAxis: {title: 'Speed in km/h'},
-            legend: 'none'
-            };
-            // Draw
-            var chart = new google.visualization.LineChart(document.getElementById('myChart'));
-            chart.draw(data, options);
-            }
          </script>
       </div>
       </div>
