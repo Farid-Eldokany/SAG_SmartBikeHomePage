@@ -1,4 +1,3 @@
-//import "charts.js";
 var newSessionButton = document.getElementById("newsession");
 var leaderboardButton = document.getElementById("leaderboard");
 var historyButton = document.getElementById("history");
@@ -76,7 +75,7 @@ var toggle = function(e, b1, b2) {
     }
 }
 
-function creatChart(){
+function createChart(){
     google.charts.load('current',{packages:['corechart']});
             google.charts.setOnLoadCallback(drawChart);
             
@@ -84,18 +83,14 @@ function creatChart(){
             // Set Data
             var data = google.visualization.arrayToDataTable(graph);
             // Set Options
-            var options = {
-            'width':500,
+            var options = {'width':500,
             'height':500,
             title: 'Speed vs. Time',
             hAxis: {title: 'Time in Seconds'},
             vAxis: {title: 'Speed in km/h'},
-            legend: 'none'
-            };
-            // Draw
+            legend: 'none'};
             var chart = new google.visualization.LineChart(document.getElementById('myChart'));
-            chart.draw(data, options);
-            }
+            chart.draw(data, options);}
 }
 function get() {
     state.active = true
@@ -225,7 +220,6 @@ function get_data(client_id) {
         speed = 0
         speedStart(0)
         power = 0
-        clearInterval(powerMeterInterval)
         return
     }
     poll_data(client_id).then(telemetry => {
@@ -409,7 +403,7 @@ function setupFlip(tick) {
                 stopSession()
 
             }
-            graph.push([speed,tick.value])
+            graph.push([tick.value,speed])
             tick.value--;
 
 
@@ -513,7 +507,7 @@ function sendEmail(name,mail,avgspeed,maxspeed,calbrnt,distcvrd) {
         
 }
 function startSession() {
-    graph=['Speed', 'Time']
+graph=[['Speed', 'Time']]
     start.style.visibility = "hidden"
     counter.style.visibility = "visible"
     stopp.style.visibility = "visible"
@@ -604,16 +598,18 @@ function history() {
 }
 
 function addSession(session) {
-    document.getElementById("historyrows").innerHTML += "<tr><td><button id='" + "s" + session.slice(8) + "' type='button' onclick='popUp(id)' class='btn  btn-rounded  btn-block btn-lg' data-mdb-ripple-color='#ffffff' style='background-color:#5cccba;color:#011F3D'>" + session + "</button>"
+    document.getElementById("historyrows").innerHTML += "<tr><td><button id='" + "s" + session + "' type='button' onclick='popUp(id)' class='btn  btn-rounded  btn-block btn-lg' data-mdb-ripple-color='#ffffff' style='background-color:#5cccba;color:#011F3D'>" + session + "</button>"
 }
 
 function popUp(id) {
     var index = id.slice(1)
     var session = sessionList["session_" + index]
+    console.log(id)
     graph=session["SpeedGraph"]
-    creatChart()
-    console.log(sessionList)
+    console.log(graph)
+    createChart()
     var name = sessionList["name"]
+    document.getElementById("sessiontitle").innerHTML = "Session "+index.toString()+" Summary"
     document.getElementById("cn").innerHTML = name.charAt(0).toUpperCase() + name.slice(1)
     document.getElementById("bpi").src = session["image"];
     document.getElementById("sa").innerHTML = session["ShoulderAngle"].toString() + " degrees"
@@ -635,7 +631,7 @@ function parseSession(data) {
     document.getElementById("historytable").innerHTML = "<table cellspacing=0 data-page-length='3' class='table table-bordered table-hover table-inverse table-striped'id=example width=100%><thead><tr><th>Session<tfoot><tr><th>Session<tbody id='historyrows' ></table>"
     var response = JSON.parse(data);
     sessionList = response["leaderboard"][response["contestantEmail"]]
-    console.log(response)
+  
     var sessionListLength = Object.keys(sessionList).length
 
     document.getElementById("avgspd").innerHTML = "Average Speed<br>" + sessionList["AverageSpeed"].toString() + " km/hr"
@@ -645,7 +641,7 @@ function parseSession(data) {
     if (sessionListLength > 6) {
 
         for (let index = 1; index < sessionListLength - 5; index++) {
-            addSession("Session " + index.toString())
+            addSession(index.toString())
         }
         $(document).ready(function() {
             $('#example').DataTable();
