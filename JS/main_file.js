@@ -26,6 +26,7 @@ var load = false
 var realtime_url = 'https://swagdxb.eu-latest.cumulocity.com/notification/realtime';
 var chTab = {}
 var activateCounter = {};
+var inSession=false;
 chTab.speed = 1500;
 activateCounter.flag = false;
 
@@ -50,6 +51,9 @@ var wait = setInterval((
     get
 ), 1000);
 var toggle = function(e, b1, b2) {
+    if(inSession==true){
+        alert("Session is still active!!!!!!!!");
+    }else{
     var b1 = document.getElementById(b1)
     var b2 = document.getElementById(b2)
     e.className = "selected";
@@ -73,7 +77,7 @@ var toggle = function(e, b1, b2) {
     if (e.id == "leaderboard") {
         return leaderboard()
     }
-}
+}}
 
 function createChart(){
     google.charts.load('current',{packages:['corechart']});
@@ -115,10 +119,10 @@ function checkLogin(data) {
 
         loginPrev = login
         if (login) {
-            console.log(login.toString() + ":" + loginPrev.toString())
+            
             waiting.style.display = "none"
             main1.style.display = "block"
-            console.log("here")
+        
         } else {
             waiting.style.display = "block"
             main1.style.display = "none"
@@ -236,7 +240,7 @@ function get_data(client_id) {
                 if (type == 'SessionTotalDistance')
 
                 {
-                    console.log(telemetry[itervar].data.data.SessionTotalDistance.STD.value)
+             
                     odometer.innerHTML = telemetry[itervar].data.data.SessionTotalDistance.STD.value
 
                 }
@@ -304,7 +308,7 @@ function speedStart() {
         alert("Wrong Value")
 
     }
-    console.log(rotateDeg)
+   
     $("#sui").css('-webkit-transform', 'rotate(-120deg)');
 
 
@@ -396,14 +400,15 @@ function speedStart() {
 };
 
 function setupFlip(tick) {
-    tick.value = 15
+    tick.value = 30
     Tick.helper.interval(function() {
         if (activateCounter.flag) {
+            inSession=true;
             if (tick.value == 0) {
                 stopSession()
 
             }
-            graph.push([tick.value,speed])
+            graph.push([30-tick.value,speed])
             tick.value--;
 
 
@@ -437,10 +442,17 @@ function getSessionData(data) {
     };
     var leaderboardKeys = Object.keys(response["leaderboard"][response["contestantEmail"]])
     var mailKeys = ""
+    var num=0;
     //sendEmail(response["contestantName"],response["contestantEmail"],response["contestantAverageSpeed"],response["contestantMaximumSpeed"],response["contestantCaloriesBurnt"],response["contestantDistanceCovered"])
     if (leaderboardKeys.includes("session_1")) {
-        mailKeys = Object.keys(leaderboard["leaderboard"][response["contestantEmail"]])
-        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (mailKeys.length - 5).toString()] = {
+        mailkeys = Object.keys(leaderboard["leaderboard"][response["contestantEmail"]])
+        for (let index = 0; index < mailkeys.length; index++) {
+            var key=mailkeys[index]
+            if(key.slice(0,7)=="session"){
+                num=num+1
+            }
+        }
+        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (num).toString()] = {
             avgspd: response["contestantAverageSpeed"],
             maxspd: response["contestantMaximumSpeed"],
             distcvd: response["contestantDistanceCovered"],
@@ -479,6 +491,7 @@ function getSessionData(data) {
 
 function stopSession() {
     activateCounter.flag = false;
+    inSession=false;
     sendCommand(device_id.toString(), "stop")
     sendCommand(device_id2.toString(), "stop")
     state.active = true
@@ -487,24 +500,6 @@ function stopSession() {
     counter.style.visibility = "hidden"
     start.style.visibility = "visible"
     seconds.style.visibility = "hidden"
-}
-function sendEmail(name,mail,avgspeed,maxspeed,calbrnt,distcvrd) {
-    //var doc = new jsPDF();
-    Email.send({
-        Host: "smtp.gmail.com",
-        Username: "smartbike.sag@gmail.com",
-        Password: "GITEX2021",
-        To: mail,
-        From: "smartbike.sag@gmail.com",
-        Subject: "Smart Bike Session Stats",
-        Body: "",
-        Attachments : [
-            {
-                name : session.pdf,
-                data : dataUri
-            }]
-    })
-        
 }
 function startSession() {
 graph=[['Speed', 'Time']]
@@ -518,7 +513,7 @@ graph=[['Speed', 'Time']]
         updatePower, 200);
 
     connect().then(client => {
-        console.log(client[0].clientId);
+        
         client_id = client[0].clientId
 
         subscribe(client_id).then(subscription => {
@@ -604,9 +599,9 @@ function addSession(session) {
 function popUp(id) {
     var index = id.slice(1)
     var session = sessionList["session_" + index]
-    console.log(id)
+   
     graph=session["SpeedGraph"]
-    console.log(graph)
+
     createChart()
     var name = sessionList["name"]
     document.getElementById("sessiontitle").innerHTML = "Session "+index.toString()+" Summary"
@@ -633,15 +628,15 @@ function parseSession(data) {
     sessionList = response["leaderboard"][response["contestantEmail"]]
   
     var sessionListLength = Object.keys(sessionList).length
-
+    var sessions=Object.keys(sessionList)
     document.getElementById("avgspd").innerHTML = "Average Speed<br>" + sessionList["AverageSpeed"].toString() + " km/hr"
     document.getElementById("avgpower").innerHTML = "Average Power<br>" + sessionList["AveragePower"].toString() + " w"
     document.getElementById("distance").innerHTML = "Total Distance Travelled<br>" + sessionList["TotalDistTravelled"].toString() + " m"
     document.getElementById("calories").innerHTML = "Total Calories Burnt<br>" + sessionList["TotalCalBurnt"].toString() + " cal"
-    if (sessionListLength > 6) {
-
-        for (let index = 1; index < sessionListLength - 5; index++) {
-            addSession(index.toString())
+        for (let index = 0; index < sessionListLength; index++) {
+            var session=sessions[index]
+            if(session.slice(0,7)=="session"){
+            addSession(session.slice(8).toString())}
         }
         $(document).ready(function() {
             $('#example').DataTable();
@@ -650,7 +645,7 @@ function parseSession(data) {
             document.getElementById("example_length").style.visibility = "hidden";
             document.getElementById("example_info").style.left = "5px";
         }, 50)
-    }
+    
 }
 
 function parseLeaderboard(data) {
@@ -673,7 +668,7 @@ function parseLeaderboard(data) {
         var name = session["name"]
         if (length > 6) {
             session = session["session_" + (length - 6).toString()]
-            console.log(session)
+          
             addRow(name, session["rank"], session["score"], session["maxspd"], session["avgspd"], session["power"], session["avgpower"], session["distcvd"], session["calbrnt"])
         }
     }
