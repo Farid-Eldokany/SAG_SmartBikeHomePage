@@ -452,7 +452,10 @@ function getSessionData(data) {
                 num=num+1
             }
         }
-        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (num).toString()] = {
+        if(num==0){
+            num=1
+        }
+        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (num+1).toString()] = {
             avgspd: response["contestantAverageSpeed"],
             maxspd: response["contestantMaximumSpeed"],
             distcvd: response["contestantDistanceCovered"],
@@ -650,7 +653,7 @@ function parseSession(data) {
 
 function parseLeaderboard(data) {
     state.active = false
-    document.getElementById("leaderboardtable").innerHTML = "<table cellspacing=0 data-page-length='4'class='table table-bordered table-hover table-inverse table-striped'id=example1 width=100% ><thead style='background-color: #5cccba;'><tr style='font-weight: normal'><th>Rank<th>Points<th>name<th>Maximum Speed<th>Average Speed<th>Maximum Power<th>Average Power<th>Total Distance Covered<th>Total Calories Burnt<tfoot style='font-weight: normal;background-color: #5cccba;'><tr><th>Rank<th>Points<th>name<th>Maximum Speed<th>Average Speed<th>Maximum Power<th>Average Power<th>Total Distance Covered<th>Total Calories Burnt<tbody id='leaderboardrows' style='font-weight: normal;'></table>"
+    document.getElementById("leaderboardtable").innerHTML = "<table cellspacing=0 data-page-length='4'class='table table-bordered table-hover table-inverse table-striped'id=example1 width=100% ><thead style='background-color: #5cccba;'><tr style='font-weight: normal'><th>Rank<th>Points<th>name<th>Maximum Speed<th>Average Speed<th>Maximum Power<th>Average Power<th>Total Distance Covered<th>Total Calories Burnt<tbody id='leaderboardrows' style='font-weight: normal;'></table>"
     var response = JSON.parse(data);
     var leaderboard = response["leaderboard_ranked"]
     var currentSession = leaderboard[response["contestantEmail"]]
