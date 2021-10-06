@@ -452,10 +452,7 @@ function getSessionData(data) {
                 num=num+1
             }
         }
-        if(num==0){
-            num=1
-        }
-        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (num+1).toString()] = {
+        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (num).toString()] = {
             avgspd: response["contestantAverageSpeed"],
             maxspd: response["contestantMaximumSpeed"],
             distcvd: response["contestantDistanceCovered"],
@@ -465,7 +462,7 @@ function getSessionData(data) {
             image: response["pose_url"],
             KneeFlexion: response["KneeFlexion"],
             KneeExtension: response["KneeExtension"],
-            HipExtension: response["KneeFlexion"],
+            HipExtension: response["HipExtension"],
             HipFlexion: response["HipFlexion"],
             ShoulderAngle: response["ShoulderAngle"],
             SpeedGraph:graph
