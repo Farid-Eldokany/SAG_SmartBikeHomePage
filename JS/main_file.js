@@ -452,7 +452,7 @@ function getSessionData(data) {
                 num=num+1
             }
         }
-        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (num).toString()] = {
+        leaderboard["leaderboard"][response["contestantEmail"]]["session_" + (num+1).toString()] = {
             avgspd: response["contestantAverageSpeed"],
             maxspd: response["contestantMaximumSpeed"],
             distcvd: response["contestantDistanceCovered"],
